@@ -108,36 +108,25 @@ form.addEventListener('submit', async (e) => {
 
     resultDiv.innerHTML = "<span style='color:#2563eb;'>Processing...</span>";
 
-    const reader = new FileReader();
-    reader.onload = async function(event) {
-        const img = new Image();
-        img.onload = async function() {
-            // Use imgly/background-removal-js
-            const result = await window.BackgroundRemoval.removeBackground(img, {
-                progress: (p) => {
-                    resultDiv.innerHTML = `<span style='color:#2563eb;'>Processing... ${Math.round(p * 100)}%</span>`;
-                }
-            });
-
-            // Show result
-            const url = result.toDataURL();
-            resultDiv.innerHTML = `
-                <h3 style="color:#2d3a4a;">Result</h3>
-                <img src="${url}" alt="Background Removed Image">
-                <a href="${url}" download="no-bg.png">Download Image</a>
-            `;
-        };
-        img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('file', file); // 'file' must match your FastAPI endpoint
 
-    const response = await fetch('https://removbgusingrembg.onrender.com/remove-bg/', {
-        method: 'POST',
-        body: formData
-    });
+    try {
+        const response = await fetch('https://removbgusingrembg.onrender.com/remove-bg/', {
+            method: 'POST',
+            body: formData
+        });
+        if (!response.ok) throw new Error('Failed to process image');
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        resultDiv.innerHTML = `
+            <h3 style="color:#2d3a4a;">Result</h3>
+            <img src="${url}" alt="Background Removed Image">
+            <a href="${url}" download="no-bg.png">Download Image</a>
+        `;
+    } catch (err) {
+        resultDiv.innerHTML = "<span style='color:#dc2626;'>Error: " + err.message + "</span>";
+    }
 });
 </script>
 </body>
