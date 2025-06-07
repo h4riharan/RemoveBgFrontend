@@ -1,0 +1,133 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Background Remover</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 420px;
+            margin: 60px auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 32px 28px 28px 28px;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3a4a;
+            margin-bottom: 28px;
+            font-size: 2rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        input[type="file"] {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #f9fafb;
+        }
+        button {
+            padding: 12px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        #result {
+            margin-top: 32px;
+            text-align: center;
+        }
+        #result img {
+            max-width: 320px;
+            margin: 18px auto 10px auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            background: #f9fafb;
+        }
+        #result a {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 18px;
+            background: #10b981;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        #result a:hover {
+            background: #059669;
+        }
+        .footer {
+            text-align: center;
+            color: #888;
+            margin-top: 40px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Background Remover</h1>
+        <form id="upload-form">
+            <input type="file" id="image-input" accept="image/*" required>
+            <button type="submit">Remove Background</button>
+        </form>
+        <div id="result"></div>
+    </div>
+    <div class="footer">
+        &copy; built by h4ri &mdash; Powered by FastAPI & rembg
+    </div>
+    <script>
+        const form = document.getElementById('upload-form');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('image-input');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            resultDiv.innerHTML = "<span style='color:#2563eb;'>Processing...</span>";
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/remove-bg/', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Failed to process image');
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                resultDiv.innerHTML = `
+                    <h3 style="color:#2d3a4a;">Result</h3>
+                    <img src="${url}" alt="Background Removed Image">
+                    <a href="${url}" download="no-bg.png">Download Image</a>
+                `;
+            } catch (err) {
+                resultDiv.innerHTML = "<span style='color:#dc2626;'>Error: " + err.message + "</span>";
+            }
+        });
+    </script>
+</body>
+</html>
