@@ -81,6 +81,38 @@
             margin-top: 40px;
             font-size: 0.95rem;
         }
+        @media (max-width: 480px) {
+            .container {
+                max-width: 90vw; /* Use 90% of viewport width */
+                margin: 30px auto;
+                padding: 20px 16px 20px 16px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            input[type="file"] {
+                padding: 6px;
+            }
+
+            button {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            #result img {
+                max-width: 90vw;
+                margin: 12px auto 8px auto;
+            }
+
+            #result a {
+                padding: 6px 14px;
+                font-size: 0.9rem;
+            }
+        }
+
     </style>
 </head>
 <body>
